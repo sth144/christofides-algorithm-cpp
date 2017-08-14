@@ -30,6 +30,9 @@ private:
 	// Prim helper function
 	int getMinIndex(int key[], bool mstSet[]);
 
+	// Find perfect matching graph
+	void perfectMatching();
+
 
 protected:
 
