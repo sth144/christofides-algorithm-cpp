@@ -118,6 +118,39 @@ void TSP::findOdds() {
 
 }
 
+
+void TSP::perfectMatching() {
+  /************************************************************************************
+   find a perfect matching M in the subgraph O using greedy algorithm but not minimum
+  *************************************************************************************/
+  int closest, length; //int d;
+  std::vector<int>::iterator tmp, first;
+
+  // Find nodes with odd degrees in T to get subgraph O
+  findOdds();
+
+  // for each odd node
+  while (!odds.empty()) {
+    first = odds.begin();
+    vector<int>::iterator it = odds.begin() + 1;
+    vector<int>::iterator end = odds.end();
+    length = std::numeric_limits<int>::max();
+    for (; it != end; ++it) {
+      // if this node is closer than the current closest, update closest and length
+      if (graph[*first][*it] < length) {
+        length = graph[*first][*it];
+        closest = *it;
+        tmp = it;
+      }
+    } // two nodes are matched, end of list reached
+    adjlist[*first].push_back(closest);
+    adjlist[closest].push_back(*first);
+    odds.erase(tmp);
+    odds.erase(first);
+  }
+}
+
+
 //find an euler circuit
 void TSP::euler_tour(int start, vector<int>&path){
 	//Create copy of adj. list
@@ -192,7 +225,45 @@ void TSP::make_hamiltonian(vector<int> &path, int &pathCost){
 }
 
 
+void TSP::printResult(){
+  ofstream outputStream;
+  outputStream.open(outFname.c_str(), ios::out);
+  outputStream << pathLength << endl;
+  for (vector<int>::iterator it = circuit.begin(); it != circuit.end(); ++it) {
+    outputStream << *it << endl;
+  }
+  outputStream.close();
+};
 
+void TSP::printPath(){
+  cout << endl;
+  for (vector<int>::iterator it = circuit.begin(); it != circuit.end()-1; ++it) {
+    cout << *it << " to " << *(it+1) << " ";
+    cout << graph[*it][*(it+1)] << endl;
+  }
+  cout << *(circuit.end()-1) << " to " << circuit.front();
+  cout << "\nLength: " << pathLength << endl << endl;
+};
 
+void TSP::printEuler() {
+  for (vector<int>::iterator it = circuit.begin(); it != circuit.end(); ++it)
+    cout << *it << endl;
+}
 
+void TSP::printAdjList() {
+  for (int i = 0; i < n; i++) {
+    cout << i << ": "; //print which vertex's edge list follows
+    for (int j = 0; j < (int)adjlist[i].size(); j++) {
+      cout << adjlist[i][j] << " "; //print each item in edge list
+    }
+    cout << endl;
+  }
+};
+
+void TSP::printCities(){
+  cout << endl;
+  int i = 0;
+  for (vector<City>::iterator it = cities.begin(); it != cities.end(); ++it)
+    cout << i++ << ":  " << it->x << " " << it->y << endl;
+}
 
