@@ -1,6 +1,85 @@
 #include "tsp.h"
 
 
+//Constructor
+TSP::TSP(string in, string out){
+	iFile = in;
+	oFile = out;
+
+	ifstream inStream;
+	inStream.open(iFile.c_str(), ios::in);
+
+	if(!inStream){
+		cerr << "Can't open input file " << iFile << endl;
+		exit(1);
+	}
+	
+	//READ DATA
+	int c, x, y;
+	int count = 0;
+	while(!inStream.eof()){
+		inStream >> c >> x >> y;
+		count++;
+		struct City newCity = {x,y};
+		cities.push_back(newCity);
+	}
+	cout << "cities created" << endl;
+	inStream.close();
+
+	//Initialize member variables
+	n = count;
+	graph = new int*[n];
+	for(int i = 0; i < n; i++){
+		graph[i] = new int[n];
+		for(int j = 0; j < n; j++){
+			graph[i][j] = 0;
+		}
+	}
+
+	cost = new int*[n];
+	for(int i = 0; i < n; i++){
+		cost[i] = new int[n];
+	}
+
+	path_vals = new int*[n];
+	for(int i = 0; i < n; i++){
+		path_vals[i] = new int[n];
+	}
+
+	adjlist = new vector<int>[n];
+	for(int i = 0; i < cities.size(); i++){
+		struct City cur = cities[i];
+	}
+}
+
+//Destructor
+TSP::~TSP(){
+	for(int i = 0; i < n; i++){
+		delete [] graph[i];
+		delete [] cost[i];
+		delete [] path_vals[i];
+	}
+	delete [] path_vals;
+	delete [] graph;
+	delete [] cost;
+	delete [] adjlist;
+}
+
+int TSP::get_distance(struct TSP::City c1, struct TSP::City c2){
+	int dx = pow((float)(c1.x - c2.x),2);
+	int dy = pow((float)(c1.y - c2.y),2);
+	return floor((float)(sqrt(dx+dy) + .5));
+}
+
+void TSP::fillMatrix(){
+	for(int i = 0; i < n; i++){
+		for(int j = 0; j < n; j++){
+			graph[i][j] = graph[j][i] = get_distance(cities[i],cities[j]);
+		}
+	}
+}
+
+
 /******************************************************************************
   This function uses Prim's algorithm to determine a minimum spanning tree on
     the graph
@@ -152,7 +231,7 @@ void TSP::perfectMatching() {
 
 
 //find an euler circuit
-void TSP::euler_tour(int start, vector<int>&path){
+void TSP::euler_tour(int start, vector<int> &path){
 	//Create copy of adj. list
 	vector<int> *tempList = new vector<int>[n];
 	for(int i = 0; i < n; i++){
@@ -163,7 +242,7 @@ void TSP::euler_tour(int start, vector<int>&path){
 	stack<int> stack;
 	int pos = start;
 	path.push_back(start);
-	while(stack.empty() && tempList[pos].size() == 0){
+	while(!stack.empty() || tempList[pos].size() > 0){
 		//Current node has no neighbors
 		if(tempList[pos].empty()){
 			//add to circuit
@@ -181,8 +260,8 @@ void TSP::euler_tour(int start, vector<int>&path){
 			//Remove edge between neighbor and current vertex
 			tempList[pos].pop_back();
 			for(int i = 0; i < tempList[neighbor].size(); i++){
-				if(tempList[neighbor] == pos){
-					tempList[neighbor].erase(temp[neighbor].begin()+i);
+				if(tempList[neighbor][i] == pos){
+					tempList[neighbor].erase(tempList[neighbor].begin()+i);
 				}
 			}
 			//Set neighbor as current vertex
@@ -192,11 +271,12 @@ void TSP::euler_tour(int start, vector<int>&path){
 	path.push_back(pos);
 }
 
+
 //Make euler tour Hamiltonian
 void TSP::make_hamiltonian(vector<int> &path, int &pathCost){
 	//remove visited nodes from Euler tour
 	bool visited[n];
-	for(i = 0; i < n; i++){
+	for(int i = 0; i < n; i++){
 		visited[i] = 0;
 	}
 	
@@ -221,13 +301,23 @@ void TSP::make_hamiltonian(vector<int> &path, int &pathCost){
 	}
 	
 	//Add distance to root
-	pathCost += graph[*cur][root];
+	pathCost += graph[*cur][*iter];
+}
+
+int TSP::findBestPath(int start){
+	vector<int> path;
+	euler_tour(start, path);
+
+	int length;
+	make_hamiltonian(path, length);
+
+	return length;
 }
 
 
 void TSP::printResult(){
   ofstream outputStream;
-  outputStream.open(outFname.c_str(), ios::out);
+  outputStream.open(oFile.c_str(), ios::out);
   outputStream << pathLength << endl;
   for (vector<int>::iterator it = circuit.begin(); it != circuit.end(); ++it) {
     outputStream << *it << endl;

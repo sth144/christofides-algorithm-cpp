@@ -11,6 +11,7 @@
 #include <string>
 #include <stdio.h>
 #include <vector>
+#include <limits>
 
 using namespace std;
 
@@ -21,17 +22,25 @@ class TSP
 {
 private:
 
+	struct City{
+		int x;
+		int y;
+	};
+
+	string iFile;
+	string oFile;
+
 	// List of odd nodes
 	vector<int>odds;
 
-	// Find odd vertices in graph
+	//Smaller cost matrix to find minimum matching on odd nodes
+	int **cost;
+
+	//Adjacency list
+	vector<int> *adjList;
+
 	void findOdds();
 
-	// Prim helper function
-	int getMinIndex(int key[], bool mstSet[]);
-
-	// Find perfect matching graph
-	void perfectMatching();
 
 
 protected:
@@ -40,6 +49,17 @@ protected:
 public:
 	// Number of cities
 	int n;
+
+	//path
+	int **path_vals;
+
+	//Shortest path length
+	int pathLength;
+
+	//euler circuit
+	vector<int> circuit;
+
+	vector<City> cities;
 
 	// n x n, pairwise distances between cities
 	int **graph;
@@ -52,10 +72,33 @@ public:
 	// Destructor
 	~TSP();
 
+	int get_distance(struct City c1, struct City c2);
 
+	//Find perfect matching
+	void perfectMatching();
+
+	//Find Euler tour
+	void euler_tour(int start, vector<int> &path);
+
+	//Find Hamiltonian path
+	void make_hamiltonian(vector<int> &path, int &pathCost);
 
 	// Prim's algorithm
 	void findMST();
+
+	int getMinIndex(int key[], bool mst[]);
+
+	void printResult();
+	void printPath();
+	void printEuler();
+	void printAdjList();
+	void printCities();
+
+	int get_size(){return n;};
+
+	void fillMatrix();
+
+	int findBestPath(int start);
 
 };
 
