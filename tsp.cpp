@@ -117,3 +117,82 @@ void TSP::findOdds() {
   }
 
 }
+
+//find an euler circuit
+void TSP::euler_tour(int start, vector<int>&path){
+	//Create copy of adj. list
+	vector<int> *tempList = new vector<int>[n];
+	for(int i = 0; i < n; i++){
+		tempList[i].resize(adjlist[i].size());
+		tempList[i] = adjlist[i];
+	}
+
+	stack<int> stack;
+	int pos = start;
+	path.push_back(start);
+	while(stack.empty() && tempList[pos].size() == 0){
+		//Current node has no neighbors
+		if(tempList[pos].empty()){
+			//add to circuit
+			path.push_back(pos);
+			//remove last vertex from stack and set it to current
+			pos = stack.top();
+			stack.pop();
+		}
+		//If current node has neighbors
+		else{
+			//Add vertex to stack
+			stack.push(pos);
+			//Take a neighbor
+			int neighbor = tempList[pos].back();
+			//Remove edge between neighbor and current vertex
+			tempList[pos].pop_back();
+			for(int i = 0; i < tempList[neighbor].size(); i++){
+				if(tempList[neighbor] == pos){
+					tempList[neighbor].erase(temp[neighbor].begin()+i);
+				}
+			}
+			//Set neighbor as current vertex
+			pos = neighbor;
+		}
+	}
+	path.push_back(pos);
+}
+
+//Make euler tour Hamiltonian
+void TSP::make_hamiltonian(vector<int> &path, int &pathCost){
+	//remove visited nodes from Euler tour
+	bool visited[n];
+	for(i = 0; i < n; i++){
+		visited[i] = 0;
+	}
+	
+	pathCost = 0;
+
+	int root = path.front();
+	vector<int>::iterator cur = path.begin();
+	vector<int>::iterator iter = path.begin()+1;
+	visited[root] = 1;
+
+	//iterate through circuit
+	while(iter != path.end()){
+		if(!visited[*iter]){
+			pathCost += graph[*cur][*iter];
+			cur = iter;
+			visited[*cur] = 1;
+			iter = cur + 1;
+		}	
+		else{
+			iter = path.erase(iter);
+		}
+	}
+	
+	//Add distance to root
+	pathCost += graph[*cur][root];
+}
+
+
+
+
+
+
