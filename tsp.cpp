@@ -23,6 +23,7 @@ TSP::TSP(string in, string out){
 		struct City newCity = {x,y};
 		cities.push_back(newCity);
 	}
+	count--;
 	cout << "cities created" << endl;
 	inStream.close();
 
