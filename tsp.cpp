@@ -1,3 +1,10 @@
+/*************************************************************************
+Title: TSP.cpp
+Description: TSP class implementation file for our Christofides implementation
+Authors: Sean Hinds, Ryan Hong, Jeff Herlitz
+Date: 08/16/17
+*************************************************************************/
+
 #include "tsp.h"
 
 
