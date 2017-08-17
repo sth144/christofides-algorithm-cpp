@@ -1,3 +1,10 @@
+/*************************************************************************
+Title: main.cpp
+Description: main method for our Christofides implementation
+Authors: Sean Hinds, Ryan Hong, Jeff Herlitz
+Date: 08/16/17
+*************************************************************************/
+
 #include <iostream>
 #include <climits>
 #include "tsp.h"
