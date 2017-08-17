@@ -1,6 +1,6 @@
 # cs325projectG24C
 
-Title: CS325 Final Project Group 24
+Title: CS325 Final Project Group 24  
 Author: Jeff Herlitz, Ryan Hong, Sean Hinds
 Date: 08/16/17
 Description: C++ implementation of Christofides Algorithm, a Polynomial-time Solution to the Traveling Salesman Problem.
