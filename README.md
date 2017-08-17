@@ -8,5 +8,5 @@ Code Files:
 Dependencies:  
 Use Case:  
 Compile command: 'make' on a Linux system (makefile has a default target which executes the command 'g++ main.cpp TSP.cpp -o TSP')  
-Run command: './TSP <data filename>'  
-Output: '<data filename>.tour', a file which contains the total tour length, followed by the order of nodes visited.  
+Run command: './TSP \<data filename>'  
+Output: '\<data filename>.tour', a file which contains the total tour length, followed by the order of nodes visited.  
