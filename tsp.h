@@ -1,3 +1,10 @@
+/*************************************************************************
+Title: TSP.hpp
+Description: TSP class specification file for our Christofides implementation
+Authors: Sean Hinds, Ryan Hong, Jeff Herlitz
+Date: 08/16/17
+*************************************************************************/
+
 #include <algorithm>
 #include <cmath>
 #include <cstdlib>
