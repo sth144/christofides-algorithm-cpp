@@ -3,6 +3,10 @@ Title: TSP.hpp
 Description: TSP class specification file for our Christofides implementation
 Authors: Sean Hinds, Ryan Hong, Jeff Herlitz
 Date: 08/16/17
+
+Changes:
+- cities coordinates changed from int to double
+- removed unused members
 *************************************************************************/
 
 #include <algorithm>
@@ -18,7 +22,6 @@ Date: 08/16/17
 #include <string>
 #include <stdio.h>
 #include <vector>
-#include <limits>
 
 using namespace std;
 
@@ -30,8 +33,8 @@ class TSP
 private:
 
 	struct City{
-		int x;
-		int y;
+		double x;
+		double y;
 	};
 
 	string iFile;
@@ -39,9 +42,6 @@ private:
 
 	// List of odd nodes
 	vector<int>odds;
-
-	//Smaller cost matrix to find minimum matching on odd nodes
-	int **cost;
 
 	//Adjacency list
 	vector<int> *adjList;
@@ -57,9 +57,6 @@ public:
 	// Number of cities
 	int n;
 
-	//path
-	int **path_vals;
-
 	//Shortest path length
 	int pathLength;
 
@@ -69,7 +66,9 @@ public:
 	vector<City> cities;
 
 	// n x n, pairwise distances between cities
-	int **graph;
+        typedef double distance_t;
+	distance_t **graph;
+        static distance_t const DINF;
 
   vector<int>* adjlist;
 
@@ -79,7 +78,7 @@ public:
 	// Destructor
 	~TSP();
 
-	int get_distance(struct City c1, struct City c2);
+	distance_t get_distance(struct City c1, struct City c2);
 
 	//Find perfect matching
 	void perfectMatching();
@@ -93,7 +92,7 @@ public:
 	// Prim's algorithm
 	void findMST();
 
-	int getMinIndex(int key[], bool mst[]);
+	int getMinIndex(distance_t key[], bool mst[]);
 
 	void printResult();
 	void printPath();

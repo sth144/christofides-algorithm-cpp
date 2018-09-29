@@ -3,10 +3,13 @@ Title: main.cpp
 Description: main method for our Christofides implementation
 Authors: Sean Hinds, Ryan Hong, Jeff Herlitz
 Date: 08/16/17
+
+Changes:
+- cities coordinate changed from int to double
+- removed useless path_vals
 *************************************************************************/
 
 #include <iostream>
-#include <climits>
 #include "tsp.h"
 //#include "twoOpt.h"
 
@@ -39,19 +42,16 @@ int main(int argc, char** argv) {
 	cout << "Matching completed" << endl;
 
 	// Loop through each index and find shortest path
-	int best = INT_MAX;
-	int bestIndex;
+	TSP::distance_t best = TSP::DINF;
+	int bestIndex = -1;
 	for (long t = 0; t < tsp_size; t++) {
-		int result = tsp.findBestPath(t);
-
-		tsp.path_vals[t][0] = t; // set start
-		tsp.path_vals[t][1] = result; // set end
-
-		if (tsp.path_vals[t][1] < best) {
-			bestIndex = tsp.path_vals[t][0];
-			best = tsp.path_vals[t][1];
+		TSP::distance_t result = tsp.findBestPath(t);
+		if (result < best) {
+			bestIndex = t;
+			best = result;
 		}
 	}
+	cout << "BestPath completed " << bestIndex << endl;
 
 	//Create path for best tour
 	tsp.euler_tour(bestIndex,tsp.circuit);

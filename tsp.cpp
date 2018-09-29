@@ -3,10 +3,24 @@ Title: TSP.cpp
 Description: TSP class implementation file for our Christofides implementation
 Authors: Sean Hinds, Ryan Hong, Jeff Herlitz
 Date: 08/16/17
+
+Change:
+- memory leak
+- cities coordinates changed from int to double
+- randomized input
+- removed unused vars
+- pow(x,2) is not converted to x*x on old GCCs
+- Assertions
 *************************************************************************/
 
 #include "tsp.h"
 
+#include <assert.h>
+#include <algorithm>
+#include <cstdlib>
+
+
+TSP::distance_t const TSP::DINF = 1.0e+99;
 
 //Constructor
 TSP::TSP(string in, string out){
@@ -22,7 +36,7 @@ TSP::TSP(string in, string out){
 	}
 	
 	//READ DATA
-	int c, x, y;
+	int c; double x, y;
 	int count = 0;
 	while(!inStream.eof()){
 		inStream >> c >> x >> y;
@@ -34,49 +48,37 @@ TSP::TSP(string in, string out){
 	cout << "cities created" << endl;
 	inStream.close();
 
+        std::srand ( unsigned ( std::time(0) ) );
+        std::random_shuffle (cities.begin(), cities.end());
+
+
 	//Initialize member variables
 	n = count;
-	graph = new int*[n];
+	graph = new distance_t*[n];
 	for(int i = 0; i < n; i++){
-		graph[i] = new int[n];
+		graph[i] = new distance_t[n];
 		for(int j = 0; j < n; j++){
 			graph[i][j] = 0;
 		}
 	}
 
-	cost = new int*[n];
-	for(int i = 0; i < n; i++){
-		cost[i] = new int[n];
-	}
-
-	path_vals = new int*[n];
-	for(int i = 0; i < n; i++){
-		path_vals[i] = new int[n];
-	}
-
 	adjlist = new vector<int>[n];
-	for(int i = 0; i < cities.size(); i++){
-		struct City cur = cities[i];
-	}
 }
 
 //Destructor
 TSP::~TSP(){
 	for(int i = 0; i < n; i++){
 		delete [] graph[i];
-		delete [] cost[i];
-		delete [] path_vals[i];
 	}
-	delete [] path_vals;
 	delete [] graph;
-	delete [] cost;
 	delete [] adjlist;
 }
 
-int TSP::get_distance(struct TSP::City c1, struct TSP::City c2){
-	int dx = pow((float)(c1.x - c2.x),2);
-	int dy = pow((float)(c1.y - c2.y),2);
-	return floor((float)(sqrt(dx+dy) + .5));
+TSP::distance_t TSP::get_distance(struct TSP::City c1, struct TSP::City c2){
+	double dx = c1.x - c2.x;
+	double dy = c1.y - c2.y;
+	double d  = sqrt(dx*dx + dy*dy);
+	return (distance_t) d;
 }
 
 void TSP::fillMatrix(){
@@ -95,14 +97,14 @@ void TSP::fillMatrix(){
 
 void TSP::findMST() {
 
-  int key[n];
+  distance_t key[n];
   bool included[n];
   int parent[n];
 
   for (int i = 0; i < n; i++) {
 
     // set each key to infinity
-    key[i] = std::numeric_limits<int>::max();
+    key[i] = DINF;
 
     // node node yet included in MST
     included[i] = false;
@@ -116,7 +118,7 @@ void TSP::findMST() {
   for (int i = 0; i < n - 1; i++) {
 
     // find closes vertex not already in tree
-    int k = getMinIndex(key, included);
+    int const k = getMinIndex(key, included);
 
     // set included to true for this vertex
     included[k] = true;
@@ -145,7 +147,7 @@ void TSP::findMST() {
     int j = parent[i];
 
     if (j != -1) {
-
+      assert ((j >= 0) && (j < n));
       adjlist[i].push_back(j);
       adjlist[j].push_back(i);
 
@@ -160,11 +162,11 @@ void TSP::findMST() {
   find the index of the closest unexamined node
 ******************************************************************************/
 
-int TSP::getMinIndex(int key[], bool mst[]) {
+int TSP::getMinIndex(distance_t key[], bool mst[]) {
 
   // initialize min and min_index
-  int min = std::numeric_limits<int>::max();
-  int min_index;
+  distance_t min = DINF;
+  int min_index = -1;
 
   // iterate through each vertex
   for (int i = 0; i < n; i++) {
@@ -180,6 +182,7 @@ int TSP::getMinIndex(int key[], bool mst[]) {
 
   }
 
+  assert ((min_index >= 0) && (min_index < n));
   return min_index;
 
 }
@@ -210,7 +213,7 @@ void TSP::perfectMatching() {
   /************************************************************************************
    find a perfect matching M in the subgraph O using greedy algorithm but not minimum
   *************************************************************************************/
-  int closest, length; //int d;
+  int closest;
   std::vector<int>::iterator tmp, first;
 
   // Find nodes with odd degrees in T to get subgraph O
@@ -221,7 +224,7 @@ void TSP::perfectMatching() {
     first = odds.begin();
     vector<int>::iterator it = odds.begin() + 1;
     vector<int>::iterator end = odds.end();
-    length = std::numeric_limits<int>::max();
+    distance_t length = DINF;
     for (; it != end; ++it) {
       // if this node is closer than the current closest, update closest and length
       if (graph[*first][*it] < length) {
@@ -240,6 +243,7 @@ void TSP::perfectMatching() {
 
 //find an euler circuit
 void TSP::euler_tour(int start, vector<int> &path){
+        assert ((start >= 0) && (start < n));
 	//Create copy of adj. list
 	vector<int> *tempList = new vector<int>[n];
 	for(int i = 0; i < n; i++){
@@ -267,7 +271,7 @@ void TSP::euler_tour(int start, vector<int> &path){
 			int neighbor = tempList[pos].back();
 			//Remove edge between neighbor and current vertex
 			tempList[pos].pop_back();
-			for(int i = 0; i < tempList[neighbor].size(); i++){
+			for(auto i = 0U; i < tempList[neighbor].size(); i++){
 				if(tempList[neighbor][i] == pos){
 					tempList[neighbor].erase(tempList[neighbor].begin()+i);
 				}
@@ -277,6 +281,7 @@ void TSP::euler_tour(int start, vector<int> &path){
 		}
 	}
 	path.push_back(pos);
+	delete [] tempList;
 }
 
 
@@ -328,7 +333,7 @@ void TSP::printResult(){
   outputStream.open(oFile.c_str(), ios::out);
   outputStream << pathLength << endl;
   for (vector<int>::iterator it = circuit.begin(); it != circuit.end(); ++it) {
-    outputStream << *it << endl;
+    outputStream << *it << " " << cities[*it].x << " " << cities[*it].y << endl;
   }
   outputStream.close();
 };
