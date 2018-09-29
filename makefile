@@ -1,12 +1,17 @@
-cc=g++
-cflags=-c -std=c++11
 
-all: driver
+inp	?= gpx
 
-driver: main.cpp tsp.cpp tsp.h
-	g++ main.cpp tsp.cpp -o tsp
+all: tsp
+
+tsp: main.cpp tsp.cpp tsp.h
+	g++ -std=c++11 -Wall -O2 main.cpp tsp.cpp -o $@
 	
 clean:
 	rm -f a.out
 	rm -f *.o
-	rm -f driver
+	rm -f tsp
+
+test: tsp
+	./tsp $(inp)
+	gnuplot -e "plot '$(inp).tour' using 2:3 with lines" -
+
