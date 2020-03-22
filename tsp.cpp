@@ -95,9 +95,9 @@ void TSP::fillMatrix(){
 
 void TSP::findMST() {
 
-  int key[n];
-  bool included[n];
-  int parent[n];
+  int *key = new int[n];
+  bool *included = new bool[n];
+  int *parent = new int[n];
 
   for (int i = 0; i < n; i++) {
 
@@ -282,8 +282,9 @@ void TSP::euler_tour(int start, vector<int> &path){
 
 //Make euler tour Hamiltonian
 void TSP::make_hamiltonian(vector<int> &path, int &pathCost){
+
 	//remove visited nodes from Euler tour
-	bool visited[n];
+	bool *visited = new bool[n];
 	for(int i = 0; i < n; i++){
 		visited[i] = 0;
 	}
@@ -296,6 +297,7 @@ void TSP::make_hamiltonian(vector<int> &path, int &pathCost){
 	visited[root] = 1;
 
 	//iterate through circuit
+	bool addMore = true;
 	while(iter != path.end()){
 		if(!visited[*iter]){
 			pathCost += graph[*cur][*iter];
@@ -307,18 +309,18 @@ void TSP::make_hamiltonian(vector<int> &path, int &pathCost){
 			iter = path.erase(iter);
 		}
 	}
-	
 	//Add distance to root
-	pathCost += graph[*cur][*iter];
+	if ( iter != path.end() ){
+		pathCost += graph[*cur][*iter];
+	}
 }
 
 int TSP::findBestPath(int start){
 	vector<int> path;
 	euler_tour(start, path);
-
 	int length;
-	make_hamiltonian(path, length);
 
+	make_hamiltonian(path, length);
 	return length;
 }
 

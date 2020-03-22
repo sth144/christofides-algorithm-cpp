@@ -36,3 +36,6 @@ Compile command: 'make' on a Linux system (makefile has a default target which e
 Run command: './TSP \<data filename>'  
   
 Output: '\<data filename>.tour', a file which contains the total tour length, followed by the order of nodes visited.  
+
+
+On Windows system, open visual studio to compile
